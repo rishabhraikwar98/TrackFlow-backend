@@ -34,6 +34,9 @@ const getProjects = async (req, res) => {
 // Get single project with member details
 const getProjectById = async (req, res) => {
   const { projectId } = req.params;
+  if (!projectId) {
+    return res.status(400).json({ message: "Project ID is required" });
+  }
   try {
     let project = await Project.findById(projectId);
     if (!project || !project.members.includes(req.user._id)) {
