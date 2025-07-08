@@ -33,15 +33,15 @@ const getProjects = async (req, res) => {
 
 // Get single project with member details
 const getProjectById = async (req, res) => {
-  const { id } = req.params;
+  const { projectId } = req.params;
   try {
-    let project = await Project.findById(id);
+    let project = await Project.findById(projectId);
     if (!project || !project.members.includes(req.user._id)) {
       return res
         .status(404)
         .json({ message: "Project not found or access denied" });
     }
-    project = await Project.findById(id)
+    project = await Project.findById(projectId)
       .populate("createdBy", "name email")
       .populate("members", "name email")
       .select("-__v -updatedAt");
@@ -52,8 +52,12 @@ const getProjectById = async (req, res) => {
 };
 // delete project
 const deleteProject = async (req, res) => {
+  const { projectId } = req.params;
+  if (!projectId) {
+    return res.status(400).json({ message: "Project ID is required" });
+  }
   try {
-    const project = await Project.findByIdAndDelete(req.params.id);
+    const project = await Project.findByIdAndDelete(projectId);
     if (!project || !project.members.includes(req.user._id)) {
       return res
         .status(404)
