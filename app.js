@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const connectDB = require('./utils/connectDB');
 const authRouter = require('./routes/auth');
 const projectsRouter = require("./routes/projects")
+const issueRouter = require("./routes/issues")
 const PORT = process.env.PORT || 5500;  
 
 // Middleware for authentication
@@ -17,13 +18,14 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true, }));
 
 // db connection
 connectDB()
 
 app.use('/api/v1/auth',authRouter);
 app.use('/api/v1/projects',protect, projectsRouter);
+app.use('/api/v1/issues',protect, issueRouter);
 
 //test route
 app.get('/', (req, res) => {
