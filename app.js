@@ -3,10 +3,13 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const connectDB = require('./utils/connectDB');
+const PORT = process.env.PORT || 5500;  
+
+// Importing routes
 const authRouter = require('./routes/auth');
 const projectsRouter = require("./routes/projects")
-const issueRouter = require("./routes/issues")
-const PORT = process.env.PORT || 5500;  
+const issuesRouter = require("./routes/issues")
+const invitesRouter = require("./routes/invites")
 
 // Middleware for authentication
 const protect = require("./middleware/authMiddleware")
@@ -25,7 +28,8 @@ connectDB()
 
 app.use('/api/v1/auth',authRouter);
 app.use('/api/v1/projects',protect, projectsRouter);
-app.use('/api/v1/issues',protect, issueRouter);
+app.use('/api/v1/issues',protect, issuesRouter);
+app.use('/api/v1/invites',protect, invitesRouter);
 
 //test route
 app.get('/', (req, res) => {
