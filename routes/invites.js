@@ -4,7 +4,7 @@ const {
   sendInvite,
   acceptInvite,
   getInvites,
-} = require("../controller/inviteController"); 
+} = require("../controller/invitesController"); 
 
 router.post("/", sendInvite);
 router.get("/", getInvites);
