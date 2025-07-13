@@ -72,6 +72,23 @@ const acceptInvite = async (req, res) => {
       .json({ message: error.message || "Internal server error" });
   }
 };
+const ignoreInvite = async (req, res) => {
+  try {
+    const { inviteId } = req.params;
+    // Validate invite existence
+    const invite = await Invite.findById(inviteId);
+    if (!invite) {
+      return res.status(404).json({ message: "Invite not found" });
+    }
+    // Delete the invite
+    await Invite.findByIdAndDelete(inviteId);
+    return res.status(200).json({ message: "Invite Ignored successfully" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: error.message || "Internal server error" });
+  }
+};
 const getInvites = async (req, res) => {
   const { email } = req.user;
   try {
@@ -96,4 +113,5 @@ module.exports = {
   sendInvite,
   acceptInvite,
   getInvites,
+  ignoreInvite
 };
