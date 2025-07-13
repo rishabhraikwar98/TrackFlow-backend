@@ -21,7 +21,11 @@ const createIssue = async (req, res) => {
     });
 
     await issue.save();
-    res.status(201).json({ message: "Issue created successfully" });
+    const response = await Issue.findById(issue._id)
+      .populate("createdBy", "name email")
+      .populate("assignedTo", "name email")
+      .select("-__v -updatedAt");
+    res.status(201).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -122,5 +126,5 @@ module.exports = {
   getIssuesByProject,
   deleteIssue,
   updateIssue,
-  getIssuebyId
+  getIssuebyId,
 };

@@ -11,7 +11,11 @@ const createProject = async (req, res) => {
       members: [req.user._id],
     });
     await project.save();
-    return res.status(201).json({ message: "Project created successfully" });
+    const response = await Project.findById(project._id)
+      .populate("createdBy", "name email")
+      .populate("members", "name email")
+      .select("-__v -updatedAt");
+    return res.status(201).json(response);
   } catch (error) {
     return res.status(500).json({
       message: error.message,
@@ -61,7 +65,7 @@ const deleteProject = async (req, res) => {
     return res.status(400).json({ message: "Project ID is required" });
   }
   try {
-    const project = await Project.findByIdAndDelete(projectId);    
+    const project = await Project.findByIdAndDelete(projectId);
     if (!project || !project.members.includes(req.user._id)) {
       return res
         .status(404)
