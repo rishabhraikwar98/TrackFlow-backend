@@ -8,19 +8,9 @@ const register = async (req, res) => {
   const { name, email, password } = req.body;
   try {
     // Check if user already exists
-    if (name.trim().length < 3) {
-      return res
-        .status(400)
-        .json({ message: "Name must be at least 3 characters long" });
-    }
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "user email already exists" });
-    }
-    if (password.trim().length < 6) {
-      return res
-        .status(400)
-        .json({ message: "Password must be at least 6 characters long" });
+      return res.status(400).json({ message: "User already exists" });
     }
     const newUser = new User({ name, email, password });
     await newUser.save();
@@ -29,7 +19,7 @@ const register = async (req, res) => {
       .status(201)
       .cookie("token", token, {
         httpOnly: true,
-        sameSite: "strict", // Prevent CSRF attacks
+        sameSite: "strict", 
         maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
       })
       .json({ message: "User registered successfully", token });
@@ -45,7 +35,7 @@ const login = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: "user not found" });
+      return res.status(404).json({ message: "User not registered" });
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -56,7 +46,7 @@ const login = async (req, res) => {
       .status(200)
       .cookie("token", token, {
         httpOnly: true,
-        sameSite: "strict", // Prevent CSRF attacks
+        sameSite: "strict", 
         maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
       })
       .json({ message: "Login successfull", token });
@@ -71,10 +61,10 @@ const logout = async (req, res) => {
     return res
       .clearCookie("token", {
         httpOnly: true,
-        sameSite: "strict", // Prevent CSRF attacks
+        sameSite: "strict", 
       })
       .status(200)
-      .json({ message: "Logout successfull" });
+      .json({ message: "Logout successfull." });
   } catch (error) {
     return res
       .status(500)

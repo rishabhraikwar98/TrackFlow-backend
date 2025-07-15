@@ -4,15 +4,10 @@ const issueSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
-      trim: true,
-      minLength: 3,
-      maxlength: 256,
+      required: true,     
     },
     description: {
       type: String,
-      trim: true,
-      maxlength: 500,
     },
     status: {
       type: String,

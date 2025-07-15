@@ -77,9 +77,55 @@ const deleteProject = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+const updateProject = async (req, res) => {
+  const { projectId } = req.params;
+  const { name, description } = req.body;
+  try {
+    const project = await Project.findByIdAndUpdate(projectId, {
+      name,
+      description,
+    });
+    if (!project || !project.members.includes(req.user._id)) {
+      return res
+        .status(404)
+        .json({ message: "Project not found or access denied" });
+    }
+    const response = await Project.findById(projectId)
+      .populate("createdBy", "name email")
+      .populate("members", "name email")
+      .select("-__v -updatedAt");
+    return res.status(200).json({ response });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+const leaveProject = async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const project = await Project.findById(projectId);
+    if (
+      !project ||
+      !project.members.includes(req.user._id) ||
+      project.createdBy._id.toString() === req.user._id
+    ) {
+      return res
+        .status(404)
+        .json({ message: "Project not found or access denied" });
+    }
+    await Project.findByIdAndUpdate(
+      project._id,
+      { $pull: { members: req.user._id } },
+      { new: true }
+    );
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 module.exports = {
   createProject,
   getProjects,
   getProjectById,
   deleteProject,
+  updateProject,
+  leaveProject,
 };

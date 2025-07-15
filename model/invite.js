@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const inviteSchema = new mongoose.Schema({
-  projectId: {
+  project: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Project",
     required: true,
@@ -9,14 +9,6 @@ const inviteSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    trim: true,
-    lowercase: true,
-    validate: {
-      validator: function (v) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-      },
-      message: props => `${props.value} is not a valid email!`
-    }
   },
 },{timestamps: true});
 

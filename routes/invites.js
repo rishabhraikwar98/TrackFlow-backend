@@ -7,7 +7,10 @@ const {
   getInvites,
 } = require("../controller/invitesController"); 
 
-router.post("/", sendInvite);
+const {inviteSchema} = require("../schemas/invite.schema")
+const validationMiddleware = require("../middleware/validationMiddleware")
+
+router.post("/",validationMiddleware(inviteSchema), sendInvite);
 router.get("/", getInvites);
 router.post("/accept/:inviteId", acceptInvite); 
 router.delete("/ignore/:inviteId", ignoreInvite); 

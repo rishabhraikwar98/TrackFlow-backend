@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const {register,login,logout,getCurrentUser} = require('../controller/authController');
 const protect  = require('../middleware/authMiddleware');
-
-router.post('/register', register);
-router.post('/login', login);
+const ValidationMiddleware = require("../middleware/validationMiddleware")
+const {registerSchema,loginSchema} = require("../schemas/auth.schema")
+router.post('/register',ValidationMiddleware(registerSchema), register);
+router.post('/login',ValidationMiddleware(loginSchema), login);
 router.post('/logout', logout);
 router.get("/me",protect, getCurrentUser);
 

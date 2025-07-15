@@ -32,12 +32,12 @@ const sendInvite = async (req, res) => {
         .json({ message: "User is already a member of the project" });
     }
     // Check if the invite already exists
-    const existingInvite = await Invite.findOne({ projectId, email });
+    const existingInvite = await Invite.findOne({ project:projectId, email });
     if (existingInvite) {
       return res.status(400).json({ message: "Invite already sent" });
     }
     // Create the invite
-    const invite = new Invite({ projectId, email });
+    const invite = new Invite({ project:projectId, email });
     await invite.save();
     return res.status(201).json({ message: "Invite sent successfully" });
   } catch (error) {
@@ -94,7 +94,7 @@ const getInvites = async (req, res) => {
   try {
     const invites = await Invite.find({ email })
       .populate({
-        path: "projectId",
+        path: "project",
         select: "name createdBy",
         populate: {
           path: "createdBy",

@@ -11,6 +11,12 @@ const createIssue = async (req, res) => {
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
+    if (
+      project.createdBy._id.toString() !== req.user._id ||
+      !project.members.includes(req.user._id)
+    ) {
+        req.status(403).json({ message: "You are not authorized to create this issue" });
+    }
     const issue = new Issue({
       title,
       description,
@@ -74,8 +80,8 @@ const deleteIssue = async (req, res) => {
     // Check if the user is authorized to delete the issue
     const project = await Project.findById(issue.projectId);
     if (
-      project.createdBy.toString() !== req.user._id.toString() ||
-      issue.createdBy.toString() !== req.user._id.toString()
+      project.createdBy._id.toString() !== req.user._id ||
+      issue.createdBy.toString() !== req.user._id
     ) {
       return res
         .status(403)
@@ -98,8 +104,8 @@ const updateIssue = async (req, res) => {
     // Check if the user is authorized to update the issue
     const project = await Project.findById(issue.projectId);
     if (
-      project.createdBy.toString() !== req.user._id.toString() &&
-      issue.createdBy.toString() !== req.user._id.toString()
+      project.createdBy._id.toString() !== req.user._id &&
+      issue.createdBy.toString() !== req.user._id
     ) {
       return res
         .status(403)
