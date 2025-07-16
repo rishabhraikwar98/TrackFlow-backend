@@ -8,9 +8,12 @@ const {
   getIssuebyId
 } = require("../controller/issuesController");
 
-router.post("/:projectId", createIssue);
+const validationMiddleware = require("../middleware/validationMiddleware")
+const {issueSchema} = require("../schemas/issue.schema")
+
+router.post("/:projectId",validationMiddleware(issueSchema),createIssue);
 router.get("/:projectId", getIssuesByProject);
 router.get("/view/:issueId", getIssuebyId);
-router.patch("/:issueId", updateIssue)
+router.patch("/:issueId",validationMiddleware(issueSchema), updateIssue)
 router.delete("/:issueId", deleteIssue);
 module.exports = router;

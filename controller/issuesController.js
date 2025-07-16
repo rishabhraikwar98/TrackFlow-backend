@@ -32,7 +32,7 @@ const createIssue = async (req, res) => {
     const response = await Issue.findById(issue._id)
       .populate("createdBy", "name email")
       .populate("assignedTo", "name email")
-      .select("-__v -updatedAt");
+      .select("-__v -updatedAt -projectId");
     res.status(201).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -51,7 +51,7 @@ const getIssuesByProject = async (req, res) => {
       .populate("createdBy", "name email")
       .populate("assignedTo", "name email")
       .sort({ createdAt: -1, updatedAt: -1 })
-      .select("-__v -updatedAt");
+      .select("-__v -updatedAt -projectId");
     return res.status(200).json(issues);
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -127,7 +127,7 @@ const updateIssue = async (req, res) => {
     const response = await Issue.findById(issue._id)
       .populate("createdBy", "name email")
       .populate("assignedTo", "name email")
-      .select("-__v -updatedAt");
+      .select("-__v -updatedAt -projectId");
     return res.status(200).json(response);
   } catch (error) {
     return res.status(500).json({ message: error.message });
