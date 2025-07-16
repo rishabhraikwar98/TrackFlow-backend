@@ -32,12 +32,12 @@ const sendInvite = async (req, res) => {
         .json({ message: "User is already a member of the project" });
     }
     // Check if the invite already exists
-    const existingInvite = await Invite.findOne({ project:projectId, email });
+    const existingInvite = await Invite.findOne({ project: projectId, email });
     if (existingInvite) {
       return res.status(400).json({ message: "Invite already sent" });
     }
     // Create the invite
-    const invite = new Invite({ project:projectId, email });
+    const invite = new Invite({ project: projectId, email });
     await invite.save();
     return res.status(201).json({ message: "Invite sent successfully" });
   } catch (error) {
@@ -54,15 +54,23 @@ const acceptInvite = async (req, res) => {
     if (!invite) {
       return res.status(404).json({ message: "Invite not found" });
     }
-    const project = await Project.findById(invite.projectId);
+    const project = await Project.findById(invite.project);
+    if (!project) {
+      return res.status(400).json({ message: "Project not found" });
+    }
     // Add user to project members
     if (project.members.includes(req.user._id)) {
       return res
         .status(400)
         .json({ message: "You are already a member of this project" });
     }
-    project.members.push(req.user._id);
-    await project.save();
+    await Project.findByIdAndUpdate(
+      project._id,
+      {
+        $push: { members: req.user._id },
+      },
+      { new: true }
+    );
     // Delete the invite
     await Invite.findByIdAndDelete(inviteId);
     return res.status(200).json({ message: "Invite accepted successfully" });
@@ -101,7 +109,8 @@ const getInvites = async (req, res) => {
           select: "name email",
         },
       })
-      .sort({ createdAt: -1 }).select("-__v -email -createdAt -updatedAt");
+      .sort({ createdAt: -1 })
+      .select("-__v -email -createdAt -updatedAt");
     return res.status(200).json(invites);
   } catch (error) {
     return res
@@ -113,5 +122,5 @@ module.exports = {
   sendInvite,
   acceptInvite,
   getInvites,
-  ignoreInvite
+  ignoreInvite,
 };
