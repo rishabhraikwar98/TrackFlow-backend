@@ -15,7 +15,9 @@ const createIssue = async (req, res) => {
       project.createdBy._id.toString() !== req.user._id ||
       !project.members.includes(req.user._id)
     ) {
-        req.status(403).json({ message: "You are not authorized to create this issue" });
+      req
+        .status(403)
+        .json({ message: "You are not authorized to create this issue" });
     }
     const issue = new Issue({
       title,
@@ -104,7 +106,7 @@ const updateIssue = async (req, res) => {
     // Check if the user is authorized to update the issue
     const project = await Project.findById(issue.projectId);
     if (
-      project.createdBy._id.toString() !== req.user._id &&
+      project.createdBy._id.toString() !== req.user._id ||
       issue.createdBy.toString() !== req.user._id
     ) {
       return res
@@ -122,7 +124,11 @@ const updateIssue = async (req, res) => {
       },
       { new: true, runValidators: true }
     );
-    return res.status(200).json({ message: "Issue updated successfully" });
+    const response = await Issue.findById(issue._id)
+      .populate("createdBy", "name email")
+      .populate("assignedTo", "name email")
+      .select("-__v -updatedAt");
+    return res.status(200).json(response);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

@@ -94,7 +94,7 @@ const updateProject = async (req, res) => {
       .populate("createdBy", "name email")
       .populate("members", "name email")
       .select("-__v -updatedAt");
-    return res.status(200).json({ response });
+    return res.status(200).json(response);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -117,6 +117,7 @@ const leaveProject = async (req, res) => {
       { $pull: { members: req.user._id } },
       { new: true }
     );
+    return res.status(200).json({ message: "Project left successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
