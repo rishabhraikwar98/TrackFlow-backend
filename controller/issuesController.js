@@ -106,13 +106,14 @@ const updateIssue = async (req, res) => {
     // Check if the user is authorized to update the issue
     const project = await Project.findById(issue.projectId);
     if (
-      project.createdBy._id.toString() !== req.user._id ||
-      issue.createdBy.toString() !== req.user._id
+      !project.createdBy.toString() === req.user._id ||
+      !issue.createdBy.toString() === req.user._id
     ) {
       return res
         .status(403)
         .json({ message: "You are not authorized to update this issue" });
     }
+
     await Issue.findByIdAndUpdate(
       issueId,
       {

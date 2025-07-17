@@ -1,6 +1,6 @@
 const Project = require("../model/project");
 const Invite = require("../model/invite");
-const Issue  = require ("../model/issue")
+const Issue = require("../model/issue");
 // Create project
 const createProject = async (req, res) => {
   const { name, description } = req.body;
@@ -67,13 +67,13 @@ const deleteProject = async (req, res) => {
   }
   try {
     const project = await Project.findByIdAndDelete(projectId);
-    if (!project || !project.members.includes(req.user._id)) {
+    if (!project || !project.createdBy === req.user._id) {
       return res
         .status(404)
         .json({ message: "Project not found or access denied" });
     }
     await Invite.deleteMany({ project: project._id });
-    await Issue.deleteMany({projectId:project._id})
+    await Issue.deleteMany({ projectId: project._id });
     return res.status(200).json({ message: "Project deleted successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -87,7 +87,8 @@ const updateProject = async (req, res) => {
       name,
       description,
     });
-    if (!project || !project.members.includes(req.user._id)) {
+    // checking authorization
+    if (!project || !project.createdBy.toString() === req.user._id) {
       return res
         .status(404)
         .json({ message: "Project not found or access denied" });
@@ -108,7 +109,7 @@ const leaveProject = async (req, res) => {
     if (
       !project ||
       !project.members.includes(req.user._id) ||
-      project.createdBy._id.toString() === req.user._id
+      project.createdBy.toString() === req.user._id
     ) {
       return res
         .status(404)
@@ -119,6 +120,7 @@ const leaveProject = async (req, res) => {
       { $pull: { members: req.user._id } },
       { new: true }
     );
+    await Issue.deleteMany({projectId:project._id})
     return res.status(200).json({ message: "Project left successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
