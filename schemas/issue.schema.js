@@ -1,11 +1,13 @@
 const { z } = require("zod");
 
-const IssueSchema = z.object({
-  title: z.string().nonempty("Issue title is required").min(3, "Issue title must be at least 3 characters long").max(256, "Project description can not exceed 500 characters"),
-  description: z.string().max(500, "Project description can not exceed 500 characters").optional(),
-  status: z.enum(["Open", "In_Progress", "Closed"]).optional(),
-  priority: z.enum(["Low", "Medium", "High"]).optional(),
+const statusEnum = z.enum(["Open", "In-Progress", "Closed"],{error:"Invalid Status. Status must be one of 'Open', 'In-Progress', or 'Closed'."})
+const priorityEnum = z.enum(["Low", "Medium", "High"],{error:"Invalid Priority. Priority must be one of 'Low', 'Medium', or 'High'."})
+const issueSchema = z.object({
+  title: z.string().nonempty("Issue title is required").min(3, "Issue title must be at least 3 characters long").max(256, "Project description can not exceed 500 characters").trim().optional(),
+  description: z.string().max(500, "Project description can not exceed 500 characters").trim().optional(),
+  status: statusEnum.optional(),
+  priority: priorityEnum.optional(),
   assignedTo: z.string().nonempty("Member's ID required").optional()
 });
 
-module.exports = { IssueSchema };
+module.exports = { issueSchema };
