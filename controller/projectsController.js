@@ -1,5 +1,6 @@
 const Project = require("../model/project");
 const Invite = require("../model/invite");
+const Issue  = require ("../model/issue")
 // Create project
 const createProject = async (req, res) => {
   const { name, description } = req.body;
@@ -71,7 +72,8 @@ const deleteProject = async (req, res) => {
         .status(404)
         .json({ message: "Project not found or access denied" });
     }
-    await Invite.deleteMany({ projectId: project._id });
+    await Invite.deleteMany({ project: project._id });
+    await Issue.deleteMany({projectId:project._id})
     return res.status(200).json({ message: "Project deleted successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
