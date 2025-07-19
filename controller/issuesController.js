@@ -3,7 +3,7 @@ const Project = require("../model/project");
 
 const createIssue = async (req, res) => {
   try {
-    const { title, description, status, priority } = req.body;
+    const { title, description, status, priority, assignedTo } = req.body;
     const { projectId } = req.params;
     const createdBy = req.user._id;
     // Check if the project exists
@@ -12,7 +12,7 @@ const createIssue = async (req, res) => {
       return res.status(404).json({ message: "Project not found" });
     }
     if (
-      project.createdBy._id.toString() !== req.user._id ||
+      !project.createdBy.toString() === req.user._id ||
       !project.members.includes(req.user._id)
     ) {
       req
@@ -25,6 +25,7 @@ const createIssue = async (req, res) => {
       status,
       priority,
       createdBy,
+      assignedTo,
       projectId,
     });
 
@@ -33,9 +34,9 @@ const createIssue = async (req, res) => {
       .populate("createdBy", "name email")
       .populate("assignedTo", "name email")
       .select("-__v -updatedAt -projectId");
-    res.status(201).json(response);
+    return res.status(201).json(response);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 const getIssuesByProject = async (req, res) => {
@@ -79,11 +80,15 @@ const deleteIssue = async (req, res) => {
     if (!issue) {
       return res.status(404).json({ message: "Issue not found" });
     }
-    // Check if the user is authorized to delete the issue
+    // Check if the user is authorzed to delete the issue
     const project = await Project.findById(issue.projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
     if (
-      project.createdBy._id.toString() !== req.user._id ||
-      issue.createdBy.toString() !== req.user._id
+      !project.createdBy.toString() === req.user._id ||
+      !issue.createdBy.toString() === req.user._id
     ) {
       return res
         .status(403)
@@ -113,7 +118,6 @@ const updateIssue = async (req, res) => {
         .status(403)
         .json({ message: "You are not authorized to update this issue" });
     }
-
     await Issue.findByIdAndUpdate(
       issueId,
       {
@@ -122,8 +126,7 @@ const updateIssue = async (req, res) => {
         status,
         priority,
         assignedTo,
-      },
-      { new: true, runValidators: true }
+      }
     );
     const response = await Issue.findById(issue._id)
       .populate("createdBy", "name email")
